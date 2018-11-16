@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import CardList from './CardList';
-import {robots} from './robots';
 import SearchBox from './SearchBox';
 import './App.css';
 
@@ -45,9 +44,15 @@ class App extends Component {
         //Unlike PROPS which don't change. App object now owns 'robots' as a state
         //rather than a PROP. Which means it can change it.
         this.state = {
-            robots: robots,
+            robots: [],
             searchField: ''
         }
+    }
+
+    componentDidMount() {
+        fetch('http://jsonplaceholder.typicode.com/users')
+        .then(response => response.json())
+        .then(users => this.setState({ robots: users}));
     }
 
     //declaring a new function inside App object.
@@ -71,13 +76,17 @@ class App extends Component {
         const filteredRobots = this.state.robots.filter(robot => { 
             return robot.name.toLowerCase().includes(this.state.searchField.toLowerCase());
          });
-        return (
-            <div className='tc'>
-                <h1 className='f1'>Robot Friends</h1>
-                <SearchBox searchChange={this.onSearchChange}/>
-                <CardList robots={filteredRobots}/>
-            </div>
-        );
+         if (this.state.robots.length === 0) {
+            return <h1 className='tc'>Loading...</h1>
+         } else {
+            return (
+                <div className='tc'>
+                    <h1 className='f1'>Robot Friends</h1>
+                    <SearchBox searchChange={this.onSearchChange}/>
+                    <CardList robots={filteredRobots}/>
+                </div>
+            );
+         }
     }
 }
 
